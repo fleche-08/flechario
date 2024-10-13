@@ -133,6 +133,7 @@
       drawPlayer();
       drawFoods();
       checkCollisions();
+      drawMapLimits(); // Dessine les limites de la carte
       updateCamera(); // Met à jour la caméra pour centrer sur le joueur
       requestAnimationFrame(gameLoop);
     }
@@ -176,6 +177,15 @@
       const offsetX = canvas.width / 2 - player.x;
       const offsetY = canvas.height / 2 - player.y;
       ctx.setTransform(1, 0, 0, 1, offsetX, offsetY); // Déplace la caméra
+    }
+
+    function drawMapLimits() {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)'; // Noir avec 60% d'opacité
+      ctx.fillRect(0, 0, canvas.width, canvas.height); // Dessine un rectangle noir sur toute la surface
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // Efface ensuite pour redessiner la scène
+      ctx.setTransform(1, 0, 0, 1, 0, 0); // Réinitialiser la transformation pour le dessin normal
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)'; // Noir avec 60% d'opacité
+      ctx.fillRect(0, 0, canvas.width, canvas.height); // Dessine le rectangle noir
     }
   </script>
 </body>
