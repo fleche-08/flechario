@@ -14,13 +14,15 @@
       background-color: #f0f0f0;
       font-family: Arial, sans-serif;
     }
-    #game-container, #start-container {
-      display: none;
+    #start-container {
+      display: flex;
       flex-direction: column;
       align-items: center;
     }
-    #start-container {
-      display: flex;
+    #game-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
     }
     #gameCanvas {
       background-color: #e0f7fa;
@@ -31,32 +33,24 @@
       font-size: 16px;
       margin: 5px;
     }
+    .game-logo {
+      width: 150px;
+      margin-bottom: 20px;
+    }
   </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Image ajoutée au-dessus du bouton -->
-        <img src="flechario.png" alt="Logo du Jeu" class="game-logo">
-        
-        <!-- Barre pour entrer le pseudo -->
-        <input type="text" id="pseudo-input" placeholder="Entrez votre pseudo">
-        
-        <!-- Bouton pour jouer -->
-        <button id="play-button">Jouer</button>
-    </div>
-    
-    <script>
-        // Code JavaScript pour gérer les événements du jeu ici
-        document.getElementById("play-button").addEventListener("click", function() {
-            // Démarre le jeu ici
-        });
-    </script>
-</body>
-<body>
   <div id="start-container">
+    <!-- Image ajoutée au-dessus du bouton -->
+    <img src="flechario.png" alt="Logo du Jeu" class="game-logo">
+    
+    <!-- Barre pour entrer le pseudo -->
     <input type="text" id="username" placeholder="Enter your name">
+    
+    <!-- Bouton pour jouer -->
     <button onclick="startGame()">Play</button>
   </div>
+  
   <div id="game-container">
     <canvas id="gameCanvas" width="600" height="400"></canvas>
   </div>
@@ -111,7 +105,6 @@
       ctx.fill();
       ctx.closePath();
 
-      // Afficher le pseudo au centre de la boule
       ctx.fillStyle = 'white';
       ctx.font = `${player.radius}px Arial`;
       ctx.textAlign = 'center';
@@ -134,7 +127,7 @@
         const food = foods[i];
         const dist = Math.hypot(player.x - food.x, player.y - food.y);
         if (dist - player.radius - food.radius < 1) {
-          player.radius += 2; 
+          player.radius += 2;
           foods.splice(i, 1);
         }
       }
