@@ -34,6 +34,25 @@
   </style>
 </head>
 <body>
+    <div class="container">
+        <!-- Image ajoutée au-dessus du bouton -->
+        <img src="flechario.png" alt="Logo du Jeu" class="game-logo">
+        
+        <!-- Barre pour entrer le pseudo -->
+        <input type="text" id="pseudo-input" placeholder="Entrez votre pseudo">
+        
+        <!-- Bouton pour jouer -->
+        <button id="play-button">Jouer</button>
+    </div>
+    
+    <script>
+        // Code JavaScript pour gérer les événements du jeu ici
+        document.getElementById("play-button").addEventListener("click", function() {
+            // Démarre le jeu ici
+        });
+    </script>
+</body>
+<body>
   <div id="start-container">
     <input type="text" id="username" placeholder="Enter your name">
     <button onclick="startGame()">Play</button>
