@@ -6,80 +6,76 @@
   <title>Agar.io Simple</title>
   <style>
     body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
       margin: 0;
-      background-color: #f0f0f0;
-      font-family: Arial, sans-serif;
+      overflow: hidden; /* Empêche le défilement de la page */
+    }
+    #gameCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      background-color: #e0f7fa;
+      border: 2px solid #00796b;
+    }
+    .game-logo {
+      width: 400px; /* Taille du logo */
+      margin-bottom: 20px;
     }
     #start-container {
       display: flex;
       flex-direction: column;
       align-items: center;
-    }
-    #game-container {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-    }
-    #gameCanvas {
-      background-color: #e0f7fa;
-      border: 2px solid #00796b;
-    }
-    .game-logo {
-      width: 400px; /* Taille agrandie du logo */
-      margin-bottom: 20px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1; /* Assure que le conteneur est au-dessus du canevas */
     }
     #username-container {
-      display: flex; /* Aligne l'input et le bouton sur la même ligne */
-      margin-bottom: 20px; /* Espace entre la barre de pseudo et le bouton */
+      display: flex;
+      margin-bottom: 20px;
     }
     input {
       padding: 10px;
       font-size: 16px;
-      margin-right: 5px; /* Espacement à droite de l'input */
+      margin-right: 5px;
     }
     #play-button {
-      background-color: #007bff; /* Couleur de fond initiale */
-      color: white; /* Couleur du texte */
-      border: none; /* Supprime la bordure par défaut */
-      border-radius: 5px; /* Coins arrondis */
-      padding: 10px 20px; /* Espacement interne */
-      font-size: 18px; /* Taille de police */
-      cursor: pointer; /* Curseur en main au survol */
-      transition: background 0.3s, transform 0.2s; /* Transition douce */
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
     }
     #play-button:hover {
-      background: linear-gradient(45deg, #007bff, #00d4ff); /* Dégradé au survol */
-      transform: scale(1.05); /* Légère augmentation de la taille au survol */
+      background: linear-gradient(45deg, #007bff, #00d4ff);
+      transform: scale(1.05);
     }
   </style>
 </head>
 <body>
   <div id="start-container">
-    <!-- Image ajoutée au-dessus du bouton -->
     <img src="flechario.png" alt="Logo du Jeu" class="game-logo">
-    
-    <!-- Barre pour entrer le pseudo et bouton "Play" -->
     <div id="username-container">
       <input type="text" id="username" placeholder="Enter your name">
-      <!-- Bouton pour jouer -->
       <button id="play-button" onclick="startGame()">Play</button>
     </div>
   </div>
   
-  <div id="game-container">
-    <canvas id="gameCanvas" width="600" height="400"></canvas>
-  </div>
+  <canvas id="gameCanvas"></canvas>
 
   <script>
-    const player = { x: 300, y: 200, radius: 20, color: 'blue', speed: 2, name: '' };
+    const player = { x: 0, y: 0, radius: 20, color: 'blue', speed: 1, name: '' };
     const foods = [];
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
-    let mouseX = player.x, mouseY = player.y;
+    let mouseX = 0, mouseY = 0;
+
+    // Ajuste la taille du canevas pour qu'il occupe toute la fenêtre
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
     function startGame() {
       const username = document.getElementById('username').value;
@@ -87,33 +83,66 @@
       
       player.name = username;
       document.getElementById('start-container').style.display = 'none';
-      document.getElementById('game-container').style.display = 'flex';
 
-      for (let i = 0; i < 10; i++) {
-        foods.push({ x: Math.random() * 600, y: Math.random() * 400, radius: 5, color: 'green' });
+      // Génère des nourritures sur toute la surface de jeu
+      for (let i = 0; i < 20; i++) {
+        foods.push({ 
+          x: Math.random() * canvas.width, 
+          y: Math.random() * canvas.height, 
+          radius: 5, 
+          color: 'green' 
+        });
       }
 
-      canvas.addEventListener('mousemove', (e) => {
+      document.addEventListener('mousemove', (e) => {
         const rect = canvas.getBoundingClientRect();
         mouseX = e.clientX - rect.left;
         mouseY = e.clientY - rect.top;
       });
+
+      // Position initiale du joueur
+      player.x = canvas.width / 2;
+      player.y = canvas.height / 2;
 
       requestAnimationFrame(gameLoop);
     }
 
     function movePlayer() {
       const angle = Math.atan2(mouseY - player.y, mouseX - player.x);
+      // Met à jour les positions du joueur
       player.x += player.speed * Math.cos(angle);
       player.y += player.speed * Math.sin(angle);
+
+      // Vérifie les limites pour empêcher le dépassement
+      if (player.x - player.radius < 0) {
+        player.x = player.radius; // Limite gauche
+      }
+      if (player.x + player.radius > canvas.width) {
+        player.x = canvas.width - player.radius; // Limite droite
+      }
+      if (player.y - player.radius < 0) {
+        player.y = player.radius; // Limite supérieure
+      }
+      if (player.y + player.radius > canvas.height) {
+        player.y = canvas.height - player.radius; // Limite inférieure
+      }
     }
 
     function gameLoop() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       movePlayer();
-      drawPlayer();
+      checkCollisions(); // Vérifier les collisions avant de dessiner
+
+      // Centrer la vue autour du joueur
+      ctx.save();
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      
+      // Dessine tous les objets après la translation
+      ctx.translate(-player.x, -player.y); // Déplacer le canevas pour suivre le joueur
       drawFoods();
-      checkCollisions();
+      drawPlayer();
+
+      ctx.restore(); // Restaure l'état précédent
       requestAnimationFrame(gameLoop);
     }
 
@@ -146,8 +175,8 @@
         const food = foods[i];
         const dist = Math.hypot(player.x - food.x, player.y - food.y);
         if (dist - player.radius - food.radius < 1) {
-          player.radius += 2;
-          foods.splice(i, 1);
+          player.radius += 2; // Agrandir le joueur lorsqu'il mange
+          foods.splice(i, 1); // Retirer l'aliment mangé
         }
       }
     }
