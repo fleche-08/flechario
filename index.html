@@ -6,28 +6,28 @@
   <title>Agar.io Simple</title>
   <style>
     body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      background-color: #f0f0f0;
+      margin: 0; /* Enlève les marges */
+      overflow: hidden; /* Cache les barres de défilement */
+      background-color: #e0f7fa; /* Couleur de fond de la page */
       font-family: Arial, sans-serif;
     }
     #start-container {
       display: flex;
       flex-direction: column;
       align-items: center;
+      height: 100vh; /* Hauteur de la page */
+      justify-content: center; /* Centrer verticalement */
     }
     #game-container {
       display: none;
+      position: relative;
+      width: 100vw; /* Prendre toute la largeur */
+      height: 100vh; /* Prendre toute la hauteur */
     }
-    #gameCanvas {
-      background-color: #e0f7fa;
-      border: 2px solid #00796b;
-      position: absolute; /* Permet de superposer le canvas */
-      top: 0;
-      left: 0;
+    canvas {
+      position: absolute; /* Positionner le canevas */
+      top: 0; /* Aligner en haut */
+      left: 0; /* Aligner à gauche */
     }
     .game-logo {
       width: 400px; /* Taille agrandie du logo */
@@ -51,7 +51,6 @@
       font-size: 18px; /* Taille de police */
       cursor: pointer; /* Curseur en main au survol */
       transition: background 0.3s, transform 0.2s; /* Transition douce */
-      width: 120px; /* Largeur du bouton */
     }
     #play-button:hover {
       background: linear-gradient(45deg, #007bff, #00d4ff); /* Dégradé au survol */
@@ -61,40 +60,48 @@
 </head>
 <body>
   <div id="start-container">
-    <!-- Image ajoutée au-dessus du bouton -->
     <img src="flechario.png" alt="Logo du Jeu" class="game-logo">
-    
-    <!-- Barre pour entrer le pseudo et bouton "Play" -->
     <div id="username-container">
       <input type="text" id="username" placeholder="Enter your name">
-      <!-- Bouton pour jouer -->
       <button id="play-button" onclick="startGame()">Play</button>
     </div>
   </div>
   
   <div id="game-container">
-    <canvas id="gameCanvas" width="600" height="400"></canvas>
+    <canvas id="gameCanvas"></canvas>
   </div>
 
   <script>
-    const player = { x: 300, y: 200, radius: 20, color: 'blue', speed: 2, name: '' };
+    const player = { x: 400, y: 300, radius: 20, color: 'blue', speed: 2, name: '' };
     const foods = [];
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
+
+    // Ajuste la taille du canevas pour qu'il prenne toute la page
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
     let mouseX = player.x, mouseY = player.y;
 
     function startGame() {
       const username = document.getElementById('username').value;
       if (!username) return alert('Please enter your name');
-      
+
       player.name = username;
       document.getElementById('start-container').style.display = 'none';
       document.getElementById('game-container').style.display = 'flex';
 
-      for (let i = 0; i < 10; i++) {
-        foods.push({ x: Math.random() * 600, y: Math.random() * 400, radius: 5, color: 'green' });
+      // Créer un grand nombre de nourriture
+      for (let i = 0; i < 100; i++) {
+        foods.push({ 
+          x: Math.random() * 2000, // Carte plus grande
+          y: Math.random() * 2000, 
+          radius: 5, 
+          color: 'green' 
+        });
       }
 
+      // Gestion des mouvements de la souris
       canvas.addEventListener('mousemove', (e) => {
         const rect = canvas.getBoundingClientRect();
         mouseX = e.clientX - rect.left;
@@ -116,6 +123,7 @@
       drawPlayer();
       drawFoods();
       checkCollisions();
+      updateCamera(); // Met à jour la caméra pour centrer sur le joueur
       requestAnimationFrame(gameLoop);
     }
 
@@ -152,6 +160,12 @@
           foods.splice(i, 1);
         }
       }
+    }
+
+    function updateCamera() {
+      const offsetX = canvas.width / 2 - player.x;
+      const offsetY = canvas.height / 2 - player.y;
+      ctx.setTransform(1, 0, 0, 1, offsetX, offsetY); // Déplace la caméra
     }
   </script>
 </body>
