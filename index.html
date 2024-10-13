@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,170 +11,101 @@
       align-items: center;
       height: 100vh;
       margin: 0;
-      overflow: hidden; /* Empêche le défilement de la page */
       background-color: #f0f0f0;
       font-family: Arial, sans-serif;
     }
-    #start-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    #game-container {
+    #game-container, #start-container {
       display: none;
       flex-direction: column;
       align-items: center;
     }
+    #start-container {
+      display: flex;
+    }
     #gameCanvas {
-      position: absolute; /* Position absolue pour couvrir tout l'écran */
-      top: 0;
-      left: 0;
-      background-color: white; /* Fond blanc */
-      border: 2px solid black; /* Contour noir */
-      width: 100vw; /* Prend toute la largeur de la fenêtre */
-      height: 100vh; /* Prend toute la hauteur de la fenêtre */
+      background-color: #e0f7fa;
+      border: 2px solid #00796b;
     }
-    .game-logo {
-      width: 400px; /* Taille agrandie du logo */
-      margin-bottom: 20px;
-    }
-    #username-container {
-      display: flex; /* Aligne l'input et le bouton sur la même ligne */
-      margin-bottom: 20px; /* Espace entre la barre de pseudo et le bouton */
-    }
-    input {
+    input, button {
       padding: 10px;
       font-size: 16px;
-      margin-right: 5px; /* Espacement à droite de l'input */
-    }
-    #play-button {
-      background-color: #007bff; /* Couleur de fond initiale */
-      color: white; /* Couleur du texte */
-      border: none; /* Supprime la bordure par défaut */
-      border-radius: 5px; /* Coins arrondis */
-      padding: 10px 20px; /* Espacement interne */
-      font-size: 18px; /* Taille de police */
-      cursor: pointer; /* Curseur en main au survol */
-      transition: background 0.3s, transform 0.2s; /* Transition douce */
-    }
-    #play-button:hover {
-      background: linear-gradient(45deg, #007bff, #00d4ff); /* Dégradé au survol */
-      transform: scale(1.05); /* Légère augmentation de la taille au survol */
+      margin: 5px;
     }
   </style>
 </head>
 <body>
   <div id="start-container">
-    <img src="flechario.png" alt="Logo du Jeu" class="game-logo">
-    <div id="username-container">
-      <input type="text" id="username" placeholder="Enter your name">
-      <button id="play-button" onclick="startGame()">Play</button>
-    </div>
+    <input type="text" id="username" placeholder="Entrez votre nom">
+    <button onclick="startGame()">Jouer</button>
   </div>
-  
   <div id="game-container">
-    <canvas id="gameCanvas"></canvas>
+    <canvas id="gameCanvas" width="600" height="400"></canvas>
   </div>
 
   <script>
-    const MAP_WIDTH = 2000; // Largeur de la carte
-    const MAP_HEIGHT = 2000; // Hauteur de la carte
-    const player = { x: 1000, y: 1000, radius: 20, color: 'blue', speed: 2, name: '' };
+    const player = { x: 300, y: 200, radius: 20, color: 'blue', speed: 2, name: '' };
     const foods = [];
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
     let mouseX = player.x, mouseY = player.y;
-    let offsetX = 0, offsetY = 0; // Décalage de la caméra
 
     function startGame() {
-      const username = document.getElementById('username').value;
-      if (!username) return alert('Please enter your name');
-
+      const username = document.getElementById('username').value.trim();
+      if (!username) return alert('Veuillez entrer votre nom');
+      
       player.name = username;
-
-      // Générer une couleur aléatoire
-      player.color = getRandomColor();
-
       document.getElementById('start-container').style.display = 'none';
       document.getElementById('game-container').style.display = 'flex';
 
+      // Générer des aliments
       for (let i = 0; i < 10; i++) {
-        foods.push({ x: Math.random() * MAP_WIDTH, y: Math.random() * MAP_HEIGHT, radius: 5, color: 'green' });
+        foods.push({ x: Math.random() * 600, y: Math.random() * 400, radius: 5, color: 'green' });
       }
 
+      // Écouteur pour le mouvement de la souris
       canvas.addEventListener('mousemove', (e) => {
         const rect = canvas.getBoundingClientRect();
-        mouseX = e.clientX;
-        mouseY = e.clientY;
+        mouseX = e.clientX - rect.left;
+        mouseY = e.clientY - rect.top;
       });
 
       requestAnimationFrame(gameLoop);
     }
 
-    // Fonction pour générer une couleur aléatoire
-    function getRandomColor() {
-      const letters = '0123456789ABCDEF';
-      let color = '#';
-      for (let i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-      }
-      return color;
-    }
-
     function movePlayer() {
-      const angle = Math.atan2(mouseY - (player.y + offsetY), mouseX - (player.x + offsetX));
+      const angle = Math.atan2(mouseY - player.y, mouseX - player.x);
       player.x += player.speed * Math.cos(angle);
       player.y += player.speed * Math.sin(angle);
     }
 
     function gameLoop() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawMapLimits(); // Dessine les limites de la carte
       movePlayer();
-      updateCamera(); // Met à jour la caméra
       drawPlayer();
       drawFoods();
       checkCollisions();
       requestAnimationFrame(gameLoop);
     }
 
-    function updateCamera() {
-      // Centre la caméra sur la position du joueur
-      offsetX = player.x - canvas.width / 2;
-      offsetY = player.y - canvas.height / 2;
-
-      // Limiter le décalage pour éviter de dépasser les bords de la carte
-      offsetX = Math.max(0, Math.min(offsetX, MAP_WIDTH - canvas.width));
-      offsetY = Math.max(0, Math.min(offsetY, MAP_HEIGHT - canvas.height));
-    }
-
-    function drawMapLimits() {
-      ctx.fillStyle = 'rgba(169, 169, 169, 0.6)'; // Gris clair
-      ctx.fillRect(0, 0, MAP_WIDTH, MAP_HEIGHT); // Dessine le fond de la carte
-
-      ctx.strokeStyle = 'black'; // Contour noir
-      ctx.lineWidth = 4; // Épaisseur du contour
-      ctx.strokeRect(0, 0, MAP_WIDTH, MAP_HEIGHT); // Dessine le contour de la carte
-    }
-
     function drawPlayer() {
       ctx.beginPath();
-      ctx.arc(player.x - offsetX, player.y - offsetY, player.radius, 0, Math.PI * 2);
+      ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
       ctx.fillStyle = player.color;
       ctx.fill();
       ctx.closePath();
 
+      // Afficher le pseudo au centre de la boule
       ctx.fillStyle = 'white';
-      ctx.font = `${player.radius}px Arial`;
+      ctx.font = `${Math.max(player.radius / 3, 10)}px Arial`; // Ajuste la taille de la police
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(player.name, player.x - offsetX, player.y - offsetY);
+      ctx.fillText(player.name, player.x, player.y);
     }
 
     function drawFoods() {
       foods.forEach(food => {
         ctx.beginPath();
-        ctx.arc(food.x - offsetX, food.y - offsetY, food.radius, 0, Math.PI * 2);
+        ctx.arc(food.x, food.y, food.radius, 0, Math.PI * 2);
         ctx.fillStyle = food.color;
         ctx.fill();
         ctx.closePath();
@@ -186,7 +117,7 @@
         const food = foods[i];
         const dist = Math.hypot(player.x - food.x, player.y - food.y);
         if (dist - player.radius - food.radius < 1) {
-          player.radius += 2;
+          player.radius += 2; 
           foods.splice(i, 1);
         }
       }
