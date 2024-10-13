@@ -6,55 +6,55 @@
   <title>Agar.io Simple</title>
   <style>
     body {
-      margin: 0; /* Enlève les marges */
-      overflow: hidden; /* Cache les barres de défilement */
-      background-color: #e0f7fa; /* Couleur de fond de la page */
+      margin: 0;
+      overflow: hidden;
+      background-color: #e0f7fa;
       font-family: Arial, sans-serif;
     }
     #start-container {
       display: flex;
       flex-direction: column;
       align-items: center;
-      height: 100vh; /* Hauteur de la page */
-      justify-content: center; /* Centrer verticalement */
+      height: 100vh;
+      justify-content: center;
     }
     #game-container {
       display: none;
       position: relative;
-      width: 100vw; /* Prendre toute la largeur */
-      height: 100vh; /* Prendre toute la hauteur */
+      width: 100vw;
+      height: 100vh;
     }
     canvas {
-      position: absolute; /* Positionner le canevas */
-      top: 0; /* Aligner en haut */
-      left: 0; /* Aligner à gauche */
+      position: absolute;
+      top: 0;
+      left: 0;
     }
     .game-logo {
-      width: 400px; /* Taille agrandie du logo */
+      width: 400px;
       margin-bottom: 20px;
     }
     #username-container {
-      display: flex; /* Aligne l'input et le bouton sur la même ligne */
-      margin-bottom: 20px; /* Espace entre la barre de pseudo et le bouton */
+      display: flex;
+      margin-bottom: 20px;
     }
     input {
       padding: 10px;
       font-size: 16px;
-      margin-right: 5px; /* Espacement à droite de l'input */
+      margin-right: 5px;
     }
     #play-button {
-      background-color: #007bff; /* Couleur de fond initiale */
-      color: white; /* Couleur du texte */
-      border: none; /* Supprime la bordure par défaut */
-      border-radius: 5px; /* Coins arrondis */
-      padding: 10px 20px; /* Espacement interne */
-      font-size: 18px; /* Taille de police */
-      cursor: pointer; /* Curseur en main au survol */
-      transition: background 0.3s, transform 0.2s; /* Transition douce */
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
     }
     #play-button:hover {
-      background: linear-gradient(45deg, #007bff, #00d4ff); /* Dégradé au survol */
-      transform: scale(1.05); /* Légère augmentation de la taille au survol */
+      background: linear-gradient(45deg, #007bff, #00d4ff);
+      transform: scale(1.05);
     }
   </style>
 </head>
@@ -83,6 +83,10 @@
 
     let mouseX = player.x, mouseY = player.y;
 
+    // Définir la taille de la carte
+    const MAP_WIDTH = 5000; // Largeur de la carte
+    const MAP_HEIGHT = 5000; // Hauteur de la carte
+
     function startGame() {
       const username = document.getElementById('username').value;
       if (!username) return alert('Please enter your name');
@@ -94,8 +98,8 @@
       // Créer un grand nombre de nourriture
       for (let i = 0; i < 100; i++) {
         foods.push({ 
-          x: Math.random() * 2000, // Carte plus grande
-          y: Math.random() * 2000, 
+          x: Math.random() * MAP_WIDTH, // Position aléatoire sur la carte
+          y: Math.random() * MAP_HEIGHT, 
           radius: 5, 
           color: 'green' 
         });
@@ -115,6 +119,12 @@
       const angle = Math.atan2(mouseY - player.y, mouseX - player.x);
       player.x += player.speed * Math.cos(angle);
       player.y += player.speed * Math.sin(angle);
+      
+      // Restreindre le joueur à l'intérieur des limites de la carte
+      if (player.x < 0) player.x = 0;
+      if (player.x > MAP_WIDTH) player.x = MAP_WIDTH;
+      if (player.y < 0) player.y = 0;
+      if (player.y > MAP_HEIGHT) player.y = MAP_HEIGHT;
     }
 
     function gameLoop() {
