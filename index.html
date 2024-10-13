@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agar.io Simple</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+      font-family: Arial, sans-serif;
+    }
+    #game-container, #start-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+    }
+    #start-container {
+      display: flex;
+    }
+    #gameCanvas {
+      background-color: #e0f7fa;
+      border: 2px solid #00796b;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div id="start-container">
+    <input type="text" id="username" placeholder="Enter your name">
+    <button onclick="startGame()">Play</button>
+  </div>
+  <div id="game-container">
+    <canvas id="gameCanvas" width="600" height="400"></canvas>
+  </div>
+
+  <script>
+    const player = { x: 300, y: 200, radius: 20, color: 'blue', speed: 2 };
+    const foods = [];
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    function startGame() {
+      const username = document.getElementById('username').value;
+      if (!username) return alert('Please enter your name');
+      
+      document.getElementById('start-container').style.display = 'none';
+      document.getElementById('game-container').style.display = 'flex';
+
+      for (let i = 0; i < 10; i++) {
+        foods.push({ x: Math.random() * 600, y: Math.random() * 400, radius: 5, color: 'green' });
+      }
+
+      window.addEventListener('keydown', movePlayer);
+      requestAnimationFrame(gameLoop);
+    }
+
+    function movePlayer(e) {
+      switch(e.key) {
+        case 'ArrowUp': player.y -= player.speed; break;
+        case 'ArrowDown': player.y += player.speed; break;
+        case 'ArrowLeft': player.x -= player.speed; break;
+        case 'ArrowRight': player.x += player.speed; break;
+      }
+    }
+
+    function gameLoop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawPlayer();
+      drawFoods();
+      checkCollisions();
+      requestAnimationFrame(gameLoop);
+    }
+
+    function drawPlayer() {
+      ctx.beginPath();
+      ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+      ctx.fillStyle = player.color;
+      ctx.fill();
+      ctx.closePath();
+    }
+
+    function drawFoods() {
+      foods.forEach(food => {
+        ctx.beginPath();
+        ctx.arc(food.x, food.y, food.radius, 0, Math.PI * 2);
+        ctx.fillStyle = food.color;
+        ctx.fill();
+        ctx.closePath();
+      });
+    }
+
+    function checkCollisions() {
+      for (let i = foods.length - 1; i >= 0; i--) {
+        const food = foods[i];
+        const dist = Math.hypot(player.x - food.x, player.y - food.y);
+        if (dist - player.radius - food.radius < 1) {
+          player.radius += 2; 
+          foods.splice(i, 1);
+        }
+      }
+    }
+  </script>
+</body>
+</html>
