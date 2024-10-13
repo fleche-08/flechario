@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +11,7 @@
       align-items: center;
       height: 100vh;
       margin: 0;
-      background-color: #000000;
+      background-color: #f0f0f0;
       font-family: Arial, sans-serif;
     }
     #game-container, #start-container {
@@ -35,8 +35,8 @@
 </head>
 <body>
   <div id="start-container">
-    <input type="text" id="username" placeholder="Entrez votre nom">
-    <button onclick="startGame()">Jouer</button>
+    <input type="text" id="username" placeholder="Enter your name">
+    <button onclick="startGame()">Play</button>
   </div>
   <div id="game-container">
     <canvas id="gameCanvas" width="600" height="400"></canvas>
@@ -50,19 +50,17 @@
     let mouseX = player.x, mouseY = player.y;
 
     function startGame() {
-      const username = document.getElementById('username').value.trim();
-      if (!username) return alert('Veuillez entrer votre nom');
+      const username = document.getElementById('username').value;
+      if (!username) return alert('Please enter your name');
       
       player.name = username;
       document.getElementById('start-container').style.display = 'none';
       document.getElementById('game-container').style.display = 'flex';
 
-      // Générer des aliments
       for (let i = 0; i < 10; i++) {
         foods.push({ x: Math.random() * 600, y: Math.random() * 400, radius: 5, color: 'green' });
       }
 
-      // Écouteur pour le mouvement de la souris
       canvas.addEventListener('mousemove', (e) => {
         const rect = canvas.getBoundingClientRect();
         mouseX = e.clientX - rect.left;
@@ -96,7 +94,7 @@
 
       // Afficher le pseudo au centre de la boule
       ctx.fillStyle = 'white';
-      ctx.font = `${Math.max(player.radius / 3, 10)}px Arial`; // Ajuste la taille de la police
+      ctx.font = `${player.radius}px Arial`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(player.name, player.x, player.y);
