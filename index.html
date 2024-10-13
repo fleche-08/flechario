@@ -47,11 +47,12 @@
     const foods = [];
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
-    
+    let mouseX = player.x, mouseY = player.y;
+
     function startGame() {
       const username = document.getElementById('username').value;
       if (!username) return alert('Please enter your name');
-      
+
       document.getElementById('start-container').style.display = 'none';
       document.getElementById('game-container').style.display = 'flex';
 
@@ -59,21 +60,24 @@
         foods.push({ x: Math.random() * 600, y: Math.random() * 400, radius: 5, color: 'green' });
       }
 
-      window.addEventListener('keydown', movePlayer);
+      canvas.addEventListener('mousemove', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        mouseX = e.clientX - rect.left;
+        mouseY = e.clientY - rect.top;
+      });
+
       requestAnimationFrame(gameLoop);
     }
 
-    function movePlayer(e) {
-      switch(e.key) {
-        case 'ArrowUp': player.y -= player.speed; break;
-        case 'ArrowDown': player.y += player.speed; break;
-        case 'ArrowLeft': player.x -= player.speed; break;
-        case 'ArrowRight': player.x += player.speed; break;
-      }
+    function movePlayer() {
+      const angle = Math.atan2(mouseY - player.y, mouseX - player.x);
+      player.x += player.speed * Math.cos(angle);
+      player.y += player.speed * Math.sin(angle);
     }
 
     function gameLoop() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      movePlayer();
       drawPlayer();
       drawFoods();
       checkCollisions();
