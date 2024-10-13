@@ -117,21 +117,22 @@
 
     function movePlayer() {
       const angle = Math.atan2(mouseY - player.y, mouseX - player.x);
+      // Déplacer le joueur avec une vitesse constante
       player.x += player.speed * Math.cos(angle);
       player.y += player.speed * Math.sin(angle);
       
       // Restreindre le joueur à l'intérieur des limites de la carte
-      if (player.x < 0) player.x = 0;
-      if (player.x > MAP_WIDTH) player.x = MAP_WIDTH;
-      if (player.y < 0) player.y = 0;
-      if (player.y > MAP_HEIGHT) player.y = MAP_HEIGHT;
+      if (player.x < player.radius) player.x = player.radius; // Ne pas dépasser les limites
+      if (player.x > MAP_WIDTH - player.radius) player.x = MAP_WIDTH - player.radius;
+      if (player.y < player.radius) player.y = player.radius;
+      if (player.y > MAP_HEIGHT - player.radius) player.y = MAP_HEIGHT - player.radius;
     }
 
     function gameLoop() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       movePlayer();
-      drawMapLimits(); // Dessine les limites de la carte
       updateCamera(); // Met à jour la caméra pour centrer sur le joueur
+      drawMapLimits(); // Dessine les limites de la carte
       drawPlayer();
       drawFoods();
       checkCollisions();
@@ -174,9 +175,12 @@
     }
 
     function updateCamera() {
-      const offsetX = canvas.width / 2 - player.x;
-      const offsetY = canvas.height / 2 - player.y;
+      // Centrer la vue sur le joueur
+      const offsetX = (canvas.width / 2) - player.x;
+      const offsetY = (canvas.height / 2) - player.y;
       ctx.setTransform(1, 0, 0, 1, offsetX, offsetY); // Déplace la caméra
+      ctx.clearRect(0, 0, MAP_WIDTH, MAP_HEIGHT); // Effacer l'ancienne vue de la carte
+      drawMapLimits(); // Dessine les limites de la carte
     }
 
     function drawMapLimits() {
