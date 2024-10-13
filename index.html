@@ -6,141 +6,141 @@
   <title>Agar.io Simple</title>
   <style>
     body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
       margin: 0;
-      overflow: hidden;
-      background-color: white; /* Fond blanc */
+      background-color: #f0f0f0;
       font-family: Arial, sans-serif;
     }
     #start-container {
       display: flex;
       flex-direction: column;
       align-items: center;
-      height: 100vh;
-      justify-content: center;
     }
     #game-container {
       display: none;
-      position: relative;
-      width: 100vw;
-      height: 100vh;
+      flex-direction: column;
+      align-items: center;
     }
-    canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
+    #gameCanvas {
+      background-color: white; /* Fond blanc */
+      border: 2px solid black; /* Contour noir */
     }
     .game-logo {
-      width: 400px;
+      width: 400px; /* Taille agrandie du logo */
       margin-bottom: 20px;
     }
     #username-container {
-      display: flex;
-      margin-bottom: 20px;
+      display: flex; /* Aligne l'input et le bouton sur la même ligne */
+      margin-bottom: 20px; /* Espace entre la barre de pseudo et le bouton */
     }
     input {
       padding: 10px;
       font-size: 16px;
-      margin-right: 5px;
+      margin-right: 5px; /* Espacement à droite de l'input */
     }
     #play-button {
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      padding: 10px 20px;
-      font-size: 18px;
-      cursor: pointer;
-      transition: background 0.3s, transform 0.2s;
+      background-color: #007bff; /* Couleur de fond initiale */
+      color: white; /* Couleur du texte */
+      border: none; /* Supprime la bordure par défaut */
+      border-radius: 5px; /* Coins arrondis */
+      padding: 10px 20px; /* Espacement interne */
+      font-size: 18px; /* Taille de police */
+      cursor: pointer; /* Curseur en main au survol */
+      transition: background 0.3s, transform 0.2s; /* Transition douce */
     }
     #play-button:hover {
-      background: linear-gradient(45deg, #007bff, #00d4ff);
-      transform: scale(1.05);
+      background: linear-gradient(45deg, #007bff, #00d4ff); /* Dégradé au survol */
+      transform: scale(1.05); /* Légère augmentation de la taille au survol */
     }
   </style>
 </head>
 <body>
   <div id="start-container">
+    <!-- Image ajoutée au-dessus du bouton -->
     <img src="flechario.png" alt="Logo du Jeu" class="game-logo">
+    
+    <!-- Barre pour entrer le pseudo et bouton "Play" -->
     <div id="username-container">
       <input type="text" id="username" placeholder="Enter your name">
+      <!-- Bouton pour jouer -->
       <button id="play-button" onclick="startGame()">Play</button>
     </div>
   </div>
   
   <div id="game-container">
-    <canvas id="gameCanvas"></canvas>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
   </div>
 
   <script>
+    const MAP_WIDTH = 2000; // Largeur de la carte
+    const MAP_HEIGHT = 2000; // Hauteur de la carte
     const player = { x: 400, y: 300, radius: 20, color: 'blue', speed: 2, name: '' };
     const foods = [];
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
-
-    // Ajuste la taille du canevas pour qu'il prenne toute la page
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
     let mouseX = player.x, mouseY = player.y;
-
-    // Définir la taille de la carte
-    const MAP_WIDTH = 10000; // Largeur de la carte
-    const MAP_HEIGHT = 10000; // Hauteur de la carte
 
     function startGame() {
       const username = document.getElementById('username').value;
       if (!username) return alert('Please enter your name');
 
       player.name = username;
+
+      // Générer une couleur aléatoire
+      player.color = getRandomColor();
+
       document.getElementById('start-container').style.display = 'none';
       document.getElementById('game-container').style.display = 'flex';
 
-      // Créer un grand nombre de nourriture
-      for (let i = 0; i < 100; i++) {
-        foods.push({ 
-          x: Math.random() * MAP_WIDTH, // Position aléatoire sur la carte
-          y: Math.random() * MAP_HEIGHT, 
-          radius: 5, 
-          color: 'green' 
-        });
+      for (let i = 0; i < 10; i++) {
+        foods.push({ x: Math.random() * MAP_WIDTH, y: Math.random() * MAP_HEIGHT, radius: 5, color: 'green' });
       }
 
-      // Gestion des mouvements de la souris
       canvas.addEventListener('mousemove', (e) => {
         const rect = canvas.getBoundingClientRect();
         mouseX = e.clientX - rect.left;
         mouseY = e.clientY - rect.top;
-
-        // Restreindre les coordonnées de la souris à l'intérieur du canevas
-        mouseX = Math.max(0, Math.min(canvas.width, mouseX));
-        mouseY = Math.max(0, Math.min(canvas.height, mouseY));
       });
 
       requestAnimationFrame(gameLoop);
     }
 
+    // Fonction pour générer une couleur aléatoire
+    function getRandomColor() {
+      const letters = '0123456789ABCDEF';
+      let color = '#';
+      for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+      }
+      return color;
+    }
+
     function movePlayer() {
       const angle = Math.atan2(mouseY - player.y, mouseX - player.x);
-      // Déplacer le joueur avec une vitesse constante
       player.x += player.speed * Math.cos(angle);
       player.y += player.speed * Math.sin(angle);
-      
-      // Restreindre le joueur à l'intérieur des limites de la carte
-      if (player.x < player.radius) player.x = player.radius; // Ne pas dépasser les limites
-      if (player.x > MAP_WIDTH - player.radius) player.x = MAP_WIDTH - player.radius;
-      if (player.y < player.radius) player.y = player.radius;
-      if (player.y > MAP_HEIGHT - player.radius) player.y = MAP_HEIGHT - player.radius;
     }
 
     function gameLoop() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      movePlayer();
-      updateCamera(); // Met à jour la caméra pour centrer sur le joueur
       drawMapLimits(); // Dessine les limites de la carte
+      movePlayer();
       drawPlayer();
       drawFoods();
       checkCollisions();
       requestAnimationFrame(gameLoop);
+    }
+
+    function drawMapLimits() {
+      ctx.fillStyle = 'rgba(169, 169, 169, 0.6)'; // Gris clair
+      ctx.fillRect(0, 0, MAP_WIDTH, MAP_HEIGHT); // Dessine le fond de la carte
+
+      ctx.strokeStyle = 'black'; // Contour noir
+      ctx.lineWidth = 4; // Épaisseur du contour
+      ctx.strokeRect(0, 0, MAP_WIDTH, MAP_HEIGHT); // Dessine le contour de la carte
     }
 
     function drawPlayer() {
@@ -176,24 +176,6 @@
           foods.splice(i, 1);
         }
       }
-    }
-
-    function updateCamera() {
-      // Centrer la vue sur le joueur
-      const offsetX = (canvas.width / 2) - player.x;
-      const offsetY = (canvas.height / 2) - player.y;
-      ctx.setTransform(1, 0, 0, 1, offsetX, offsetY); // Déplace la caméra
-      ctx.clearRect(0, 0, MAP_WIDTH, MAP_HEIGHT); // Effacer l'ancienne vue de la carte
-      drawMapLimits(); // Dessine les limites de la carte
-    }
-
-    function drawMapLimits() {
-      ctx.fillStyle = 'black'; // Contour noir
-      ctx.fillRect(0, 0, MAP_WIDTH, MAP_HEIGHT); // Dessine la carte
-      ctx.fillStyle = 'lightgray'; // Gris clair pour la zone en dehors de la carte
-      ctx.fillRect(0, 0, canvas.width, canvas.height); // Remplit l'espace de la fenêtre
-      ctx.fillStyle = 'white'; // Remplissage blanc pour le fond de la carte
-      ctx.fillRect(0, 0, MAP_WIDTH, MAP_HEIGHT); // Fond blanc sur la carte
     }
   </script>
 </body>
