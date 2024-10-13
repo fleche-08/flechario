@@ -43,7 +43,7 @@
   </div>
 
   <script>
-    const player = { x: 300, y: 200, radius: 20, color: 'blue', speed: 2 };
+    const player = { x: 300, y: 200, radius: 20, color: 'blue', speed: 2, name: '' };
     const foods = [];
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
@@ -52,7 +52,8 @@
     function startGame() {
       const username = document.getElementById('username').value;
       if (!username) return alert('Please enter your name');
-
+      
+      player.name = username;
       document.getElementById('start-container').style.display = 'none';
       document.getElementById('game-container').style.display = 'flex';
 
@@ -90,6 +91,13 @@
       ctx.fillStyle = player.color;
       ctx.fill();
       ctx.closePath();
+
+      // Afficher le pseudo au centre de la boule
+      ctx.fillStyle = 'white';
+      ctx.font = `${player.radius}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(player.name, player.x, player.y);
     }
 
     function drawFoods() {
