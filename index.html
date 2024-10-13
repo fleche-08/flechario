@@ -13,7 +13,6 @@
       margin: 0;
       background-color: #f0f0f0;
       font-family: Arial, sans-serif;
-      overflow: hidden; /* Éviter le défilement */
     }
     #start-container {
       display: flex;
@@ -30,26 +29,33 @@
       top: 0;
       left: 0;
     }
-    input, button {
-      padding: 15px; /* Augmenter le padding pour les boutons */
-      font-size: 20px; /* Agrandir la taille de la police */
-      margin: 10px; /* Espacement entre les éléments */
+    .game-logo {
+      width: 400px; /* Taille agrandie du logo */
+      margin-bottom: 20px;
     }
-    button {
-      background-color: #00796b;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-      width: 200px; /* Largeur fixe pour le bouton */
+    #username-container {
+      display: flex; /* Aligne l'input et le bouton sur la même ligne */
+      margin-bottom: 20px; /* Espace entre la barre de pseudo et le bouton */
     }
-    button:hover {
-      background: linear-gradient(to right, #42a5f5, #478ed1);
+    input {
+      padding: 10px;
+      font-size: 16px;
+      margin-right: 5px; /* Espacement à droite de l'input */
     }
-    img {
-      width: 300px; /* Ajuste la taille de l'image du logo si nécessaire */
-      margin-bottom: 20px; /* Espace entre l'image et le formulaire */
+    #play-button {
+      background-color: #007bff; /* Couleur de fond initiale */
+      color: white; /* Couleur du texte */
+      border: none; /* Supprime la bordure par défaut */
+      border-radius: 5px; /* Coins arrondis */
+      padding: 10px 20px; /* Espacement interne */
+      font-size: 18px; /* Taille de police */
+      cursor: pointer; /* Curseur en main au survol */
+      transition: background 0.3s, transform 0.2s; /* Transition douce */
+      width: 120px; /* Largeur du bouton */
+    }
+    #play-button:hover {
+      background: linear-gradient(45deg, #007bff, #00d4ff); /* Dégradé au survol */
+      transform: scale(1.05); /* Légère augmentation de la taille au survol */
     }
   </style>
 </head>
@@ -58,14 +64,16 @@
     <!-- Image ajoutée au-dessus du bouton -->
     <img src="flechario.png" alt="Logo du Jeu" class="game-logo">
     
-    <!-- Barre pour entrer le pseudo -->
-    <input type="text" id="username" placeholder="Entrez votre pseudo">
-    
-    <!-- Bouton pour jouer -->
-    <button onclick="startGame()">Jouer</button>
+    <!-- Barre pour entrer le pseudo et bouton "Play" -->
+    <div id="username-container">
+      <input type="text" id="username" placeholder="Enter your name">
+      <!-- Bouton pour jouer -->
+      <button id="play-button" onclick="startGame()">Play</button>
+    </div>
   </div>
+  
   <div id="game-container">
-    <canvas id="gameCanvas"></canvas>
+    <canvas id="gameCanvas" width="600" height="400"></canvas>
   </div>
 
   <script>
@@ -73,10 +81,7 @@
     const foods = [];
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
-
-    // Rendre le canvas plein écran
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    let mouseX = player.x, mouseY = player.y;
 
     function startGame() {
       const username = document.getElementById('username').value;
@@ -84,18 +89,16 @@
       
       player.name = username;
       document.getElementById('start-container').style.display = 'none';
-      document.getElementById('game-container').style.display = 'block';
+      document.getElementById('game-container').style.display = 'flex';
 
-      // Créer de la nourriture
       for (let i = 0; i < 10; i++) {
-        foods.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, radius: 5, color: 'green' });
+        foods.push({ x: Math.random() * 600, y: Math.random() * 400, radius: 5, color: 'green' });
       }
 
       canvas.addEventListener('mousemove', (e) => {
         const rect = canvas.getBoundingClientRect();
-        // Mouvements du joueur basés sur la souris
-        mouseX = e.clientX;
-        mouseY = e.clientY;
+        mouseX = e.clientX - rect.left;
+        mouseY = e.clientY - rect.top;
       });
 
       requestAnimationFrame(gameLoop);
@@ -113,14 +116,6 @@
       drawPlayer();
       drawFoods();
       checkCollisions();
-
-      // Centrer la vue sur le joueur, en gardant la caméra assez proche
-      const offsetX = player.x - canvas.width / 2 + player.radius;
-      const offsetY = player.y - canvas.height / 2 + player.radius;
-
-      // Afficher la nourriture dans la nouvelle vue
-      drawFoods(offsetX, offsetY);
-
       requestAnimationFrame(gameLoop);
     }
 
@@ -131,7 +126,6 @@
       ctx.fill();
       ctx.closePath();
 
-      // Afficher le pseudo au centre de la boule
       ctx.fillStyle = 'white';
       ctx.font = `${player.radius}px Arial`;
       ctx.textAlign = 'center';
@@ -139,10 +133,10 @@
       ctx.fillText(player.name, player.x, player.y);
     }
 
-    function drawFoods(offsetX = 0, offsetY = 0) {
+    function drawFoods() {
       foods.forEach(food => {
         ctx.beginPath();
-        ctx.arc(food.x - offsetX, food.y - offsetY, food.radius, 0, Math.PI * 2);
+        ctx.arc(food.x, food.y, food.radius, 0, Math.PI * 2);
         ctx.fillStyle = food.color;
         ctx.fill();
         ctx.closePath();
@@ -154,7 +148,7 @@
         const food = foods[i];
         const dist = Math.hypot(player.x - food.x, player.y - food.y);
         if (dist - player.radius - food.radius < 1) {
-          player.radius += 2; 
+          player.radius += 2;
           foods.splice(i, 1);
         }
       }
