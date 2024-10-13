@@ -28,14 +28,28 @@
       background-color: #e0f7fa;
       border: 2px solid #00796b;
     }
-    input, button {
+    input {
       padding: 10px;
       font-size: 16px;
       margin: 5px;
     }
     .game-logo {
-      width: 400px; /* Taille agrandie du logo */
+      width: 300px; /* Taille agrandie du logo */
       margin-bottom: 20px;
+    }
+    #play-button {
+      background-color: #007bff; /* Couleur de fond initiale */
+      color: white; /* Couleur du texte */
+      border: none; /* Supprime la bordure par défaut */
+      border-radius: 5px; /* Coins arrondis */
+      padding: 10px 20px; /* Espacement interne */
+      font-size: 18px; /* Taille de police */
+      cursor: pointer; /* Curseur en main au survol */
+      transition: background 0.3s, transform 0.2s; /* Transition douce */
+    }
+    #play-button:hover {
+      background: linear-gradient(45deg, #007bff, #00d4ff); /* Dégradé au survol */
+      transform: scale(1.05); /* Légère augmentation de la taille au survol */
     }
   </style>
 </head>
@@ -48,7 +62,7 @@
     <input type="text" id="username" placeholder="Enter your name">
     
     <!-- Bouton pour jouer -->
-    <button onclick="startGame()">Play</button>
+    <button id="play-button" onclick="startGame()">Play</button>
   </div>
   
   <div id="game-container">
