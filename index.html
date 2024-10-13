@@ -28,14 +28,18 @@
       background-color: #e0f7fa;
       border: 2px solid #00796b;
     }
-    input {
-      padding: 10px;
-      font-size: 16px;
-      margin: 5px;
-    }
     .game-logo {
       width: 300px; /* Taille agrandie du logo */
       margin-bottom: 20px;
+    }
+    #username-container {
+      display: flex; /* Aligne l'input et le bouton sur la même ligne */
+      margin-bottom: 20px; /* Espace entre la barre de pseudo et le bouton */
+    }
+    input {
+      padding: 10px;
+      font-size: 16px;
+      margin-right: 5px; /* Espacement à droite de l'input */
     }
     #play-button {
       background-color: #007bff; /* Couleur de fond initiale */
@@ -46,15 +50,10 @@
       font-size: 18px; /* Taille de police */
       cursor: pointer; /* Curseur en main au survol */
       transition: background 0.3s, transform 0.2s; /* Transition douce */
-      margin-right: 10px; /* Espace entre le bouton et l'input */
     }
     #play-button:hover {
       background: linear-gradient(45deg, #007bff, #00d4ff); /* Dégradé au survol */
       transform: scale(1.05); /* Légère augmentation de la taille au survol */
-    }
-    .input-container {
-      display: flex; /* Aligne horizontalement le bouton et le champ de texte */
-      align-items: center; /* Centre verticalement */
     }
   </style>
 </head>
@@ -63,13 +62,12 @@
     <!-- Image ajoutée au-dessus du bouton -->
     <img src="flechario.png" alt="Logo du Jeu" class="game-logo">
     
-    <div class="input-container">
-      <!-- Bouton pour jouer aligné à gauche -->
-      <button id="play-button" onclick="startGame()">Play</button>
-      <!-- Barre pour entrer le pseudo -->
+    <!-- Barre pour entrer le pseudo et bouton "Play" -->
+    <div id="username-container">
       <input type="text" id="username" placeholder="Enter your name">
+      <!-- Bouton pour jouer -->
+      <button id="play-button" onclick="startGame()">Play</button>
     </div>
-    
   </div>
   
   <div id="game-container">
