@@ -8,7 +8,7 @@
     body {
       margin: 0;
       overflow: hidden;
-      background-color: #f0f0f0; /* Fond gris clair */
+      background-color: white; /* Fond blanc */
       font-family: Arial, sans-serif;
     }
     #start-container {
@@ -184,8 +184,12 @@
     }
 
     function drawMapLimits() {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)'; // Noir avec 60% d'opacité
-      ctx.fillRect(0, 0, MAP_WIDTH, MAP_HEIGHT); // Dessine un rectangle noir sur toute la surface de la carte
+      ctx.fillStyle = 'black'; // Contour noir
+      ctx.fillRect(0, 0, MAP_WIDTH, MAP_HEIGHT); // Dessine la carte
+      ctx.fillStyle = 'lightgray'; // Gris clair pour la zone en dehors de la carte
+      ctx.fillRect(0, 0, canvas.width, canvas.height); // Remplit l'espace de la fenêtre
+      ctx.fillStyle = 'white'; // Remplissage blanc pour le fond de la carte
+      ctx.fillRect(0, 0, MAP_WIDTH, MAP_HEIGHT); // Fond blanc sur la carte
     }
   </script>
 </body>
