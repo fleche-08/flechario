@@ -34,7 +34,7 @@
       margin: 5px;
     }
     .game-logo {
-      width: 400px; /* Taille agrandie du logo */
+      width: 300px; /* Taille agrandie du logo */
       margin-bottom: 20px;
     }
     #play-button {
@@ -46,10 +46,15 @@
       font-size: 18px; /* Taille de police */
       cursor: pointer; /* Curseur en main au survol */
       transition: background 0.3s, transform 0.2s; /* Transition douce */
+      margin-right: 10px; /* Espace entre le bouton et l'input */
     }
     #play-button:hover {
       background: linear-gradient(45deg, #007bff, #00d4ff); /* Dégradé au survol */
       transform: scale(1.05); /* Légère augmentation de la taille au survol */
+    }
+    .input-container {
+      display: flex; /* Aligne horizontalement le bouton et le champ de texte */
+      align-items: center; /* Centre verticalement */
     }
   </style>
 </head>
@@ -58,11 +63,13 @@
     <!-- Image ajoutée au-dessus du bouton -->
     <img src="flechario.png" alt="Logo du Jeu" class="game-logo">
     
-    <!-- Barre pour entrer le pseudo -->
-    <input type="text" id="username" placeholder="Enter your name">
+    <div class="input-container">
+      <!-- Bouton pour jouer aligné à gauche -->
+      <button id="play-button" onclick="startGame()">Play</button>
+      <!-- Barre pour entrer le pseudo -->
+      <input type="text" id="username" placeholder="Enter your name">
+    </div>
     
-    <!-- Bouton pour jouer -->
-    <button id="play-button" onclick="startGame()">Play</button>
   </div>
   
   <div id="game-container">
