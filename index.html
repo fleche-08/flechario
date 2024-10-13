@@ -110,6 +110,10 @@
         const rect = canvas.getBoundingClientRect();
         mouseX = e.clientX - rect.left;
         mouseY = e.clientY - rect.top;
+
+        // Restreindre les coordonnées de la souris à l'intérieur du canevas
+        mouseX = Math.max(0, Math.min(canvas.width, mouseX));
+        mouseY = Math.max(0, Math.min(canvas.height, mouseY));
       });
 
       requestAnimationFrame(gameLoop);
