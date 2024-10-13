@@ -83,7 +83,7 @@
   <script>
     const MAP_WIDTH = 2000; // Largeur de la carte
     const MAP_HEIGHT = 2000; // Hauteur de la carte
-    const player = { x: 400, y: 300, radius: 20, color: 'blue', speed: 2, name: '' };
+    const player = { x: 1000, y: 1000, radius: 20, color: 'blue', speed: 2, name: '' };
     const foods = [];
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
@@ -143,8 +143,9 @@
     }
 
     function updateCamera() {
-      offsetX = mouseX - canvas.width / 2;
-      offsetY = mouseY - canvas.height / 2;
+      // Centre la caméra sur la position du joueur
+      offsetX = player.x - canvas.width / 2;
+      offsetY = player.y - canvas.height / 2;
 
       // Limiter le décalage pour éviter de dépasser les bords de la carte
       offsetX = Math.max(0, Math.min(offsetX, MAP_WIDTH - canvas.width));
