@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Jeu Agario</title>
+    <title>Flechario</title>
     <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400&display=swap" rel="stylesheet">
     <style>
         body {
@@ -13,115 +13,295 @@
             height: 100vh;
             margin: 0;
             overflow: hidden;
-            background-color: black; /* Fond noir */
-            color: white; /* Texte blanc */
+            background-color: #000000; /* Fond plus doux */
+            color: white;
             font-family: 'Rubik', sans-serif;
         }
         #startScreen {
             display: flex;
             flex-direction: column;
             align-items: center;
-            background-color: rgba(255, 255, 255, 0.1); /* Légèrement transparent */
+            background-color: rgba(255, 255, 255, 0.1);
             border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.8);
+            padding: 40px;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         #inputContainer {
             display: flex;
-            align-items: center; /* Aligner verticalement le champ et le bouton */
-            margin-bottom: 10px; /* Espace sous le conteneur */
-        }
-        canvas {
-            border: 1px solid black;
-            display: none;
-        }
-        #scoreBoard {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            font-size: 20px; 
-            color: white; /* Texte du score en blanc */
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
         }
         #username {
-            padding: 10px;
-            border: 2px solid #ffffff; /* Bordure blanche */
-            border-radius: 5px;
-            width: 200px;
-            margin-right: 10px; /* Espace entre le champ de saisie et le bouton */
-            background: rgba(255, 255, 255, 0.2); /* Légèrement transparent */
-            color: white; /* Texte blanc dans le champ */
+            padding: 12px 20px;
+            border: 2px solid #ffffff;
+            border-radius: 8px;
+            width: 250px;
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 16px;
+            transition: background 0.3s, border-color 0.3s;
         }
         #username:focus {
-            border-color: #ffffff; /* Bordure blanche au focus */
-            background: rgba(255, 255, 255, 0.3); /* Légèrement plus clair au focus */
+            border-color: #00bfff;
+            background: rgba(255, 255, 255, 0.3);
+            outline: none;
         }
         #playButton {
-            padding: 10px 20px;
+            padding: 12px 30px;
             border: none;
-            border-radius: 5px;
-            background-color: white; /* Fond blanc */
-            color: black; /* Texte noir */
-            font-size: 16px;
+            border-radius: 8px;
+            background-color: #00bfff;
+            color: white;
+            font-size: 18px;
             cursor: pointer;
-            transition: background 0.3s, transform 0.3s; /* Transition douce */
+            transition: background 0.3s, transform 0.3s;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
         }
         #playButton:hover {
-            background: linear-gradient(90deg, #cccccc, #aaaaaa); /* Dégradé gris au survol */
-            transform: scale(1.1); /* Agrandit légèrement le bouton */
+            background: #1e90ff;
+            transform: scale(1.05);
         }
+        /* Style du sélecteur de couleur */
+        #colorPickerContainer {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #colorPickerLabel {
+            margin-right: 10px;
+            font-size: 16px;
+            color: #ffffff;
+        }
+        #colorPicker {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            padding: 0;
+            outline: none;
+            transition: transform 0.3s;
+        }
+        #colorPicker:hover {
+            transform: scale(1.1);
+        }
+        canvas {
+            border: none;
+            display: none;
+        }
+        /* Leaderboard */
+        #leaderboard {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 18px;
+            color: #ffffff;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+            max-width: 200px;
+        }
+        #leaderboard h2 {
+            margin: 0 0 10px 0;
+            font-size: 20px;
+            color: #00bfff;
+        }
+        #leaderboard ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        #leaderboard li {
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+        #leaderboard li:last-child {
+            margin-bottom: 0;
+        }
+        /* Score, Niveau et Boost */
+        #scoreLevelBoostContainer {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 18px;
+            color: #ffffff;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #scoreLevelBoostContainer p {
+            margin: 5px 0;
+        }
+        #boostButton {
+            margin-top: 10px;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            background-color: #ff4500;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.3s;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);
+        }
+        #boostButton:hover {
+            background-color: #ff6347;
+            transform: scale(1.05);
+        }
+        #boostButton:disabled {
+            background-color: #555555;
+            cursor: not-allowed;
+            transform: none;
+        }
+        /* Leaderboard */
+        /* ... (Same as above) */
+        /* MiniMap */
         #miniMap {
             position: absolute;
-            bottom: 10px;
-            left: 10px;
+            bottom: 15px;
+            left: 15px;
             border: 2px solid white;
             background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 5px;
-            width: 200px;
-            height: 200px;
+            border-radius: 8px;
+            width: 220px;
+            height: 220px;
             overflow: hidden;
-            display: none; /* Masquer la mini carte au départ */
+            display: none;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
         }
         #miniMapCanvas {
             width: 100%;
             height: 100%;
         }
-        #colorPicker {
-            margin: 10px 0;
+        /* Message de confirmation */
+        .message {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(30, 30, 30, 0.95);
+            color: #00bfff;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 18px;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.7);
+            animation: fadeOut 2s forwards;
+            z-index: 1000;
+        }
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        /* Texte "Beta 0.1" */
+        #betaText {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #aaaaaa;
         }
     </style>
 </head>
 <body>
-<div id="startScreen">
-    <div id="inputContainer">
-        <input type="text" id="username" placeholder="Entrez votre pseudo">
-        <button id="playButton" onclick="startGame()">Play</button>
+    <div id="startScreen">
+        <h1>Fleche.io</h1>
+        <div id="inputContainer">
+            <input type="text" id="username" placeholder="Entrez votre pseudo">
+            <button id="playButton" onclick="startGame()">Jouer</button>
+        </div>
+        <div id="colorPickerContainer">
+            <label for="colorPicker" id="colorPickerLabel">Choisissez votre couleur :</label>
+            <input type="color" id="colorPicker" value="#00bfff" title="Choisissez votre couleur" onchange="chooseColor(this.value)">
+        </div>
+        <div id="betaText">Beta 0.1</div>
     </div>
-    <input type="color" id="colorPicker" value="#0000ff" onchange="chooseColor(this.value)">
-</div>
-    <div id="scoreBoard">Score: 0</div>
+    <div id="leaderboard">
+        <h2>Leaderboard</h2>
+        <ul id="leaderboardList">
+            <!-- Les scores seront ajoutés ici -->
+        </ul>
+    </div>
+    <div id="scoreLevelBoostContainer">
+        <p id="scoreDisplay">Score: 0</p>
+        <p id="levelDisplay">Niveau: 1</p>
+        <button id="boostButton" onclick="activateBoost()">Boost (50 pts)</button>
+    </div>
     <canvas id="gameCanvas"></canvas>
     <div id="miniMap">
         <canvas id="miniMapCanvas"></canvas>
     </div>
 
     <script>
-        let canvas = document.getElementById("gameCanvas");
-        let context = canvas.getContext("2d");
-        let miniMapCanvas = document.getElementById("miniMapCanvas");
-        let miniMapContext = miniMapCanvas.getContext("2d");
-        let player = { x: 2000, y: 1500, radius: 15, name: '', color: '#0000ff' }; // Boule principale
-        let balls = []; // Boules contrôlées par la souris
+        // Initialisation des éléments du DOM
+        const canvas = document.getElementById("gameCanvas");
+        const context = canvas.getContext("2d");
+        const miniMapCanvas = document.getElementById("miniMapCanvas");
+        const miniMapContext = miniMapCanvas.getContext("2d");
+        const scoreDisplay = document.getElementById("scoreDisplay");
+        const levelDisplay = document.getElementById("levelDisplay");
+        const boostButton = document.getElementById("boostButton");
+        const colorPicker = document.getElementById("colorPicker");
+        const startScreen = document.getElementById("startScreen");
+        const leaderboardList = document.getElementById("leaderboardList");
+
+        // Configuration du jeu
+        const mapSize = 4000;
+        const miniMapSize = 220;
+        const respawnDelay = 3000; // Temps en millisecondes avant réapparition des pastilles
+
+        // Variables de jeu
+        let balls = []; // Toutes les boules
         let points = [];
         let mouse = { x: 0, y: 0 };
         let zoomLevel = 1;
-        const mapSize = 4000;
-        const miniMapSize = 200;
-        const respawnDelay = 3000; // Temps en millisecondes avant réapparition des pastilles
+        let username = "";
+        let score = 0;
+        let level = 1;
+        let boostActive = false;
 
+        // Leaderboard (local storage)
+        let leaderboard = JSON.parse(localStorage.getItem('flechario_leaderboard')) || [];
+
+        // Boule principale du joueur
+        let player = {
+            x: mapSize / 2,
+            y: mapSize / 2,
+            radius: 30,
+            name: '',
+            color: '#00bfff',
+            isPlayer: true,
+            isMain: true
+        };
+        balls.push(player); // Ajouter la boule principale au jeu
+
+        // Fonction pour choisir la couleur du joueur
         function chooseColor(color) {
-            player.color = color; // Mettre à jour la couleur du joueur
+            player.color = color;
+            // Mettre à jour la couleur de toutes les boules contrôlées par le joueur
+            balls.forEach(ball => {
+                if (ball.isPlayer) {
+                    ball.color = color;
+                }
+            });
         }
 
+        // Fonction de redimensionnement du canvas
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
@@ -132,12 +312,14 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
+        // Gestion des mouvements de la souris
         canvas.addEventListener("mousemove", function(event) {
-            let rect = canvas.getBoundingClientRect();
+            const rect = canvas.getBoundingClientRect();
             mouse.x = event.clientX - rect.left;
             mouse.y = event.clientY - rect.top;
         });
 
+        // Gestion du zoom avec la molette de la souris
         canvas.addEventListener("wheel", function(event) {
             if (event.deltaY < 0) {
                 zoomLevel *= 1.1;
@@ -147,27 +329,22 @@
             zoomLevel = Math.min(Math.max(0.5, zoomLevel), 2);
         });
 
-        canvas.addEventListener("keydown", function(event) {
-            if (event.code === "Space") {
-                splitPlayer();
-            }
-        });
-
+        // Fonction pour dessiner le quadrillage
         function drawGrid() {
             context.save();
-            context.strokeStyle = "rgba(255, 255, 255, 0.2)"; // Couleur du quadrillage
+            context.strokeStyle = "rgba(255, 255, 255, 0.2)";
             context.lineWidth = 1;
 
-            // Dessiner les lignes verticales
-            for (let x = 0; x < mapSize; x += 100) {
+            // Lignes verticales
+            for (let x = 0; x <= mapSize; x += 100) {
                 context.beginPath();
                 context.moveTo(x, 0);
                 context.lineTo(x, mapSize);
                 context.stroke();
             }
 
-            // Dessiner les lignes horizontales
-            for (let y = 0; y < mapSize; y += 100) {
+            // Lignes horizontales
+            for (let y = 0; y <= mapSize; y += 100) {
                 context.beginPath();
                 context.moveTo(0, y);
                 context.lineTo(mapSize, y);
@@ -177,20 +354,29 @@
             context.restore();
         }
 
+        // Fonction pour démarrer le jeu
         function startGame() {
-            player.name = document.getElementById("username").value;
-            document.getElementById("startScreen").style.display = 'none';
-            document.getElementById("miniMap").style.display = 'block'; // Afficher la mini-carte
+            username = document.getElementById("username").value.trim();
+            if (username === "") {
+                alert("Veuillez entrer un pseudo.");
+                return;
+            }
+            player.name = username;
+            startScreen.style.display = 'none';
+            document.getElementById("miniMap").style.display = 'block';
             canvas.style.display = "block";
 
-            // Initialiser les points
-            for (let i = 0; i < 100; i++) {
-                points.push(createPoint());
+            // Initialiser les points si non déjà initialisés
+            if (points.length === 0) {
+                for (let i = 0; i < 100; i++) {
+                    points.push(createPoint());
+                }
             }
-            balls.push(player); // Ajoutez la boule principale à la liste des boules
+
             updateGame();
         }
 
+        // Fonction pour générer une couleur aléatoire
         function getRandomColor() {
             const letters = '0123456789ABCDEF';
             let color = '#';
@@ -200,6 +386,7 @@
             return color;
         }
 
+        // Fonction pour créer un point
         function createPoint() {
             let isPurple = Math.random() < 0.2;
             let isBlack = Math.random() < 0.005;
@@ -212,58 +399,102 @@
             };
         }
 
-        function splitPlayer() {
-            if (player.radius > 30) { // Assurez-vous que la taille est suffisante pour diviser
-                let newRadius = player.radius / 2;
+        // Fonction pour afficher des messages temporaires
+        function showMessage(message) {
+            let messageElement = document.createElement("div");
+            messageElement.className = "message";
+            messageElement.innerText = message;
+            document.body.appendChild(messageElement);
 
-                // Créer deux nouvelles boules
-                let ball1 = { ...player, radius: newRadius, x: player.x - newRadius, y: player.y };
-                let ball2 = { ...player, radius: newRadius, x: player.x + newRadius, y: player.y };
-
-                // Mettre à jour le joueur principal à la moitié de la taille
-                player.radius = newRadius;
-
-                // Ajouter les nouvelles boules à la liste
-                balls.push(ball1, ball2);
-            }
+            // Supprimer le message après 2 secondes
+            setTimeout(() => {
+                if (messageElement.parentNode) {
+                    document.body.removeChild(messageElement);
+                }
+            }, 2000);
         }
 
+        // Fonction pour activer le boost
+        function activateBoost() {
+            if (boostActive) {
+                showMessage("Boost déjà actif !");
+                return;
+            }
+            if (score < 50) {
+                showMessage("Pas assez de points pour activer le boost.");
+                return;
+            }
+
+            boostActive = true;
+            score -= 50;
+            scoreDisplay.innerText = `Score: ${score}`;
+            boostButton.disabled = true;
+            boostButton.innerText = "Boost Activé";
+
+            // Augmenter la vitesse du joueur
+            player.speedMultiplier = 2; // Double la vitesse
+
+            // Définir la durée du boost (5 secondes)
+            setTimeout(() => {
+                boostActive = false;
+                player.speedMultiplier = 1; // Rétablir la vitesse normale
+                boostButton.disabled = false;
+                boostButton.innerText = "Boost (50 pts)";
+                showMessage("Boost terminé !");
+            }, 5000);
+        }
+
+        // Fonction pour mettre à jour le jeu
         function updateGame() {
             context.clearRect(0, 0, canvas.width, canvas.height);
             context.save();
             context.scale(zoomLevel, zoomLevel);
-            let cameraX = player.x - (canvas.width / 2 / zoomLevel);
-            let cameraY = player.y - (canvas.height / 2 / zoomLevel);
+
+            // Trouver la boule principale pour centrer la caméra
+            let mainBall = balls.find(ball => ball.isMain && ball.isPlayer);
+            if (!mainBall) {
+                context.restore();
+                requestAnimationFrame(updateGame);
+                return;
+            }
+
+            let cameraX = mainBall.x - (canvas.width / 2 / zoomLevel);
+            let cameraY = mainBall.y - (canvas.height / 2 / zoomLevel);
             context.translate(-cameraX, -cameraY);
 
             drawGrid(); // Dessiner le quadrillage
 
             // Dessiner les boules
-            for (let ball of balls) {
-                context.fillStyle = ball.color; 
+            balls.forEach(ball => {
+                context.fillStyle = ball.color;
                 context.beginPath();
-                context.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2); // Dessiner un cercle
+                context.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
                 context.fill();
 
-                // Afficher le nom du joueur
-                context.fillStyle = "white";
-                context.font = `${ball.radius / 2}px Arial`;
-                context.textAlign = "center";
-                context.fillText(ball.name, ball.x, ball.y + (ball.radius / 4));
-            }
+                // Afficher le nom du joueur pour la boule principale
+                if (ball.isMain && ball.name) {
+                    context.fillStyle = "white";
+                    context.font = `${Math.max(ball.radius / 2, 12)}px Arial`;
+                    context.textAlign = "center";
+                    context.fillText(ball.name, ball.x, ball.y + ball.radius + 15);
+                }
+            });
 
-            // Logique de mouvement des boules
-            for (let ball of balls) {
-                ball.x += (mouse.x / zoomLevel + cameraX - ball.x) * 0.02;
-                ball.y += (mouse.y / zoomLevel + cameraY - ball.y) * 0.02;
+            // Logique de mouvement des boules contrôlées par le joueur
+            balls.forEach(ball => {
+                if (ball.isPlayer) {
+                    let speedMultiplier = ball.speedMultiplier || 1;
+                    ball.x += (mouse.x / zoomLevel + cameraX - ball.x) * 0.02 * speedMultiplier;
+                    ball.y += (mouse.y / zoomLevel + cameraY - ball.y) * 0.02 * speedMultiplier;
 
-                // Limiter la position de chaque boule à l'intérieur de la carte
-                ball.x = Math.max(ball.radius, Math.min(ball.x, mapSize - ball.radius));
-                ball.y = Math.max(ball.radius, Math.min(ball.y, mapSize - ball.radius));
-            }
+                    // Limiter la position de chaque boule à l'intérieur de la carte
+                    ball.x = Math.max(ball.radius, Math.min(ball.x, mapSize - ball.radius));
+                    ball.y = Math.max(ball.radius, Math.min(ball.y, mapSize - ball.radius));
+                }
+            });
 
             // Dessiner les limites de la carte
-            context.strokeStyle = "white"; 
+            context.strokeStyle = "white";
             context.lineWidth = 2;
             context.strokeRect(0, 0, mapSize, mapSize);
 
@@ -275,13 +506,20 @@
                 context.arc(point.x, point.y, point.radius, 0, Math.PI * 2);
                 context.fill();
 
-                // Vérifier si l'une des boules mange un point
-                for (let ball of balls) {
-                    if (Math.hypot(ball.x - point.x, ball.y - point.y) < ball.radius + point.radius) {
+                // Vérifier si l'une des boules contrôlées par le joueur mange un point
+                balls.forEach(ball => {
+                    if (ball.isPlayer && Math.hypot(ball.x - point.x, ball.y - point.y) < ball.radius + point.radius) {
                         // Ne pas grandir au-delà d'un score de 550
-                        if (player.radius < 550) {
+                        if (ball.radius < 550) {
                             points.splice(i, 1);
+                            score += point.value;
                             ball.radius += point.value;
+
+                            // Mettre à jour le niveau si nécessaire
+                            if (score >= level * 100) {
+                                level++;
+                                showMessage(`Niveau ${level}!`);
+                            }
 
                             // Réapparition des points après un délai
                             setTimeout(() => {
@@ -289,39 +527,49 @@
                             }, respawnDelay);
                         }
                     }
-                }
+                });
             }
 
             context.restore();
-            document.getElementById("scoreBoard").innerText = `Score: ${Math.floor(player.radius)}`;
+
+            // Mettre à jour le score et le niveau
+            scoreDisplay.innerText = `Score: ${score}`;
+            levelDisplay.innerText = `Niveau: ${level}`;
+
+            // Mettre à jour le leaderboard
+            updateLeaderboard(score);
 
             // Mise à jour de la mini-carte
             updateMiniMap();
+
             requestAnimationFrame(updateGame);
         }
 
+        // Fonction pour mettre à jour la mini-carte
         function updateMiniMap() {
             miniMapContext.clearRect(0, 0, miniMapCanvas.width, miniMapCanvas.height);
             miniMapContext.fillStyle = "rgba(255, 255, 255, 0.2)";
             miniMapContext.fillRect(0, 0, miniMapSize, miniMapSize);
 
-            // Dessiner le joueur sur la mini-carte
-            for (let ball of balls) {
-                let miniMapX = (ball.x / mapSize) * miniMapSize;
-                let miniMapY = (ball.y / mapSize) * miniMapSize;
+            // Dessiner les boules contrôlées par le joueur sur la mini-carte
+            balls.forEach(ball => {
+                if (ball.isPlayer) {
+                    let miniMapX = (ball.x / mapSize) * miniMapSize;
+                    let miniMapY = (ball.y / mapSize) * miniMapSize;
 
-                // Vérifier que les coordonnées sont dans les limites de la mini-carte
-                miniMapX = Math.max(0, Math.min(miniMapX, miniMapSize));
-                miniMapY = Math.max(0, Math.min(miniMapY, miniMapSize));
+                    // Vérifier que les coordonnées sont dans les limites de la mini-carte
+                    miniMapX = Math.max(0, Math.min(miniMapX, miniMapSize));
+                    miniMapY = Math.max(0, Math.min(miniMapY, miniMapSize));
 
-                miniMapContext.fillStyle = "white"; // Point blanc pour le joueur
-                miniMapContext.beginPath();
-                miniMapContext.arc(miniMapX, miniMapY, 3, 0, Math.PI * 2); // Petit point blanc
-                miniMapContext.fill();
-            }
+                    miniMapContext.fillStyle = "white"; // Point blanc pour le joueur
+                    miniMapContext.beginPath();
+                    miniMapContext.arc(miniMapX, miniMapY, 3, 0, Math.PI * 2);
+                    miniMapContext.fill();
+                }
+            });
 
             // Dessiner les points sur la mini-carte
-            for (let point of points) {
+            points.forEach(point => {
                 let miniPointX = (point.x / mapSize) * miniMapSize;
                 let miniPointY = (point.y / mapSize) * miniMapSize;
 
@@ -329,8 +577,52 @@
                 miniMapContext.beginPath();
                 miniMapContext.arc(miniPointX, miniPointY, (point.radius / mapSize) * miniMapSize, 0, Math.PI * 2);
                 miniMapContext.fill();
-            }
+            });
         }
+
+        // Fonction pour mettre à jour le leaderboard
+        function updateLeaderboard(currentScore) {
+            // Ajouter le score actuel au leaderboard si c'est un nouveau score
+            if (leaderboard.length < 5 || currentScore > leaderboard[leaderboard.length - 1].score) {
+                leaderboard.push({ name: username, score: currentScore });
+                // Trier le leaderboard par score décroissant
+                leaderboard.sort((a, b) => b.score - a.score);
+                // Garder seulement les 5 meilleurs scores
+                if (leaderboard.length > 5) {
+                    leaderboard.pop();
+                }
+                // Sauvegarder dans le localStorage
+                localStorage.setItem('flechario_leaderboard', JSON.stringify(leaderboard));
+            }
+
+            // Afficher le leaderboard
+            leaderboardList.innerHTML = '';
+            leaderboard.forEach((entry, index) => {
+                let li = document.createElement("li");
+                li.innerHTML = `<span>${index + 1}. ${entry.name}</span><span>${entry.score}</span>`;
+                leaderboardList.appendChild(li);
+            });
+        }
+
+        // Fonction pour initialiser le leaderboard au chargement
+        function initializeLeaderboard() {
+            leaderboardList.innerHTML = '';
+            leaderboard.forEach((entry, index) => {
+                let li = document.createElement("li");
+                li.innerHTML = `<span>${index + 1}. ${entry.name}</span><span>${entry.score}</span>`;
+                leaderboardList.appendChild(li);
+            });
+        }
+
+        // Initialiser le leaderboard au chargement
+        initializeLeaderboard();
+
+        // Initialiser les points au chargement
+        window.onload = () => {
+            for (let i = 0; i < 100; i++) {
+                points.push(createPoint());
+            }
+        };
     </script>
 </body>
 </html>
