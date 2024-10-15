@@ -220,16 +220,16 @@
 </head>
 <body>
     <div id="startScreen">
-        <img src="https://github.com/fleche-08/flechario/blob/main/flechario.png?raw=true" alt="Flechario" style="width: 200px; height: auto;">
+        <h1>Fleche.io</h1>
         <div id="inputContainer">
             <input type="text" id="username" placeholder="Entrez votre pseudo">
+            <button id="playButton" onclick="startGame()">Jouer</button>
         </div>
-        <button id="playButton">Jouer</button>
         <div id="colorPickerContainer">
-            <label id="colorPickerLabel">Couleur:</label>
-            <input type="color" id="colorPicker">
+            <label for="colorPicker" id="colorPickerLabel">Choisissez votre couleur :</label>
+            <input type="color" id="colorPicker" value="#00bfff" title="Choisissez votre couleur" onchange="chooseColor(this.value)">
         </div>
-        <p id="betaText">Beta 0.1</p>
+        <div id="betaText">Beta 0.1</div>
     </div>
     <div id="leaderboard">
         <h2>Leaderboard</h2>
