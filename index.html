@@ -254,8 +254,8 @@
 
             // Logique de mouvement des boules
             for (let ball of balls) {
-                ball.x += (mouse.x / zoomLevel + cameraX - ball.x) * 0.05;
-                ball.y += (mouse.y / zoomLevel + cameraY - ball.y) * 0.05;
+                ball.x += (mouse.x / zoomLevel + cameraX - ball.x) * 0.02;
+                ball.y += (mouse.y / zoomLevel + cameraY - ball.y) * 0.02;
 
                 // Limiter la position de chaque boule à l'intérieur de la carte
                 ball.x = Math.max(ball.radius, Math.min(ball.x, mapSize - ball.radius));
