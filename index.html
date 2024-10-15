@@ -1,185 +1,336 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agar.io Simple</title>
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden; /* Empêche le défilement de la page */
-    }
-    #gameCanvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      background-color: #e0f7fa;
-      border: 2px solid #00796b;
-    }
-    .game-logo {
-      width: 400px; /* Taille du logo */
-      margin-bottom: 20px;
-    }
-    #start-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 1; /* Assure que le conteneur est au-dessus du canevas */
-    }
-    #username-container {
-      display: flex;
-      margin-bottom: 20px;
-    }
-    input {
-      padding: 10px;
-      font-size: 16px;
-      margin-right: 5px;
-    }
-    #play-button {
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      padding: 10px 20px;
-      font-size: 18px;
-      cursor: pointer;
-      transition: background 0.3s, transform 0.2s;
-    }
-    #play-button:hover {
-      background: linear-gradient(45deg, #007bff, #00d4ff);
-      transform: scale(1.05);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>Jeu Agario</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            background-color: black; /* Fond noir */
+            color: white; /* Texte blanc */
+            font-family: 'Rubik', sans-serif;
+        }
+        #startScreen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.1); /* Légèrement transparent */
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.8);
+        }
+        #inputContainer {
+            display: flex;
+            align-items: center; /* Aligner verticalement le champ et le bouton */
+            margin-bottom: 10px; /* Espace sous le conteneur */
+        }
+        canvas {
+            border: 1px solid black;
+            display: none;
+        }
+        #scoreBoard {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 20px; 
+            color: white; /* Texte du score en blanc */
+        }
+        #username {
+            padding: 10px;
+            border: 2px solid #ffffff; /* Bordure blanche */
+            border-radius: 5px;
+            width: 200px;
+            margin-right: 10px; /* Espace entre le champ de saisie et le bouton */
+            background: rgba(255, 255, 255, 0.2); /* Légèrement transparent */
+            color: white; /* Texte blanc dans le champ */
+        }
+        #username:focus {
+            border-color: #ffffff; /* Bordure blanche au focus */
+            background: rgba(255, 255, 255, 0.3); /* Légèrement plus clair au focus */
+        }
+        #playButton {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: white; /* Fond blanc */
+            color: black; /* Texte noir */
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.3s; /* Transition douce */
+        }
+        #playButton:hover {
+            background: linear-gradient(90deg, #cccccc, #aaaaaa); /* Dégradé gris au survol */
+            transform: scale(1.1); /* Agrandit légèrement le bouton */
+        }
+        #miniMap {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            border: 2px solid white;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            width: 200px;
+            height: 200px;
+            overflow: hidden;
+            display: none; /* Masquer la mini carte au départ */
+        }
+        #miniMapCanvas {
+            width: 100%;
+            height: 100%;
+        }
+        #colorPicker {
+            margin: 10px 0;
+        }
+    </style>
 </head>
 <body>
-  <div id="start-container">
-    <img src="flechario.png" alt="Logo du Jeu" class="game-logo">
-    <div id="username-container">
-      <input type="text" id="username" placeholder="Enter your name">
-      <button id="play-button" onclick="startGame()">Play</button>
+<div id="startScreen">
+    <div id="inputContainer">
+        <input type="text" id="username" placeholder="Entrez votre pseudo">
+        <button id="playButton" onclick="startGame()">Play</button>
     </div>
-  </div>
-  
-  <canvas id="gameCanvas"></canvas>
+    <input type="color" id="colorPicker" value="#0000ff" onchange="chooseColor(this.value)">
+</div>
+    <div id="scoreBoard">Score: 0</div>
+    <canvas id="gameCanvas"></canvas>
+    <div id="miniMap">
+        <canvas id="miniMapCanvas"></canvas>
+    </div>
 
-  <script>
-    const player = { x: 0, y: 0, radius: 20, color: 'blue', speed: 1, name: '' };
-    const foods = [];
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    let mouseX = 0, mouseY = 0;
+    <script>
+        let canvas = document.getElementById("gameCanvas");
+        let context = canvas.getContext("2d");
+        let miniMapCanvas = document.getElementById("miniMapCanvas");
+        let miniMapContext = miniMapCanvas.getContext("2d");
+        let player = { x: 2000, y: 1500, radius: 15, name: '', color: '#0000ff' }; // Boule principale
+        let balls = []; // Boules contrôlées par la souris
+        let points = [];
+        let mouse = { x: 0, y: 0 };
+        let zoomLevel = 1;
+        const mapSize = 4000;
+        const miniMapSize = 200;
+        const respawnDelay = 3000; // Temps en millisecondes avant réapparition des pastilles
 
-    // Ajuste la taille du canevas pour qu'il occupe toute la fenêtre
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    function startGame() {
-      const username = document.getElementById('username').value;
-      if (!username) return alert('Please enter your name');
-      
-      player.name = username;
-      document.getElementById('start-container').style.display = 'none';
-
-      // Génère des nourritures sur toute la surface de jeu
-      for (let i = 0; i < 20; i++) {
-        foods.push({ 
-          x: Math.random() * canvas.width, 
-          y: Math.random() * canvas.height, 
-          radius: 5, 
-          color: 'green' 
-        });
-      }
-
-      document.addEventListener('mousemove', (e) => {
-        const rect = canvas.getBoundingClientRect();
-        mouseX = e.clientX - rect.left;
-        mouseY = e.clientY - rect.top;
-      });
-
-      // Position initiale du joueur
-      player.x = canvas.width / 2;
-      player.y = canvas.height / 2;
-
-      requestAnimationFrame(gameLoop);
-    }
-
-    function movePlayer() {
-      const angle = Math.atan2(mouseY - player.y, mouseX - player.x);
-      // Met à jour les positions du joueur
-      player.x += player.speed * Math.cos(angle);
-      player.y += player.speed * Math.sin(angle);
-
-      // Vérifie les limites pour empêcher le dépassement
-      if (player.x - player.radius < 0) {
-        player.x = player.radius; // Limite gauche
-      }
-      if (player.x + player.radius > canvas.width) {
-        player.x = canvas.width - player.radius; // Limite droite
-      }
-      if (player.y - player.radius < 0) {
-        player.y = player.radius; // Limite supérieure
-      }
-      if (player.y + player.radius > canvas.height) {
-        player.y = canvas.height - player.radius; // Limite inférieure
-      }
-    }
-
-    function gameLoop() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      movePlayer();
-      checkCollisions(); // Vérifier les collisions avant de dessiner
-
-      // Centrer la vue autour du joueur
-      ctx.save();
-      ctx.translate(canvas.width / 2, canvas.height / 2);
-      
-      // Dessine tous les objets après la translation
-      ctx.translate(-player.x, -player.y); // Déplacer le canevas pour suivre le joueur
-      drawFoods();
-      drawPlayer();
-
-      ctx.restore(); // Restaure l'état précédent
-      requestAnimationFrame(gameLoop);
-    }
-
-    function drawPlayer() {
-      ctx.beginPath();
-      ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
-      ctx.fillStyle = player.color;
-      ctx.fill();
-      ctx.closePath();
-
-      ctx.fillStyle = 'white';
-      ctx.font = `${player.radius}px Arial`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(player.name, player.x, player.y);
-    }
-
-    function drawFoods() {
-      foods.forEach(food => {
-        ctx.beginPath();
-        ctx.arc(food.x, food.y, food.radius, 0, Math.PI * 2);
-        ctx.fillStyle = food.color;
-        ctx.fill();
-        ctx.closePath();
-      });
-    }
-
-    function checkCollisions() {
-      for (let i = foods.length - 1; i >= 0; i--) {
-        const food = foods[i];
-        const dist = Math.hypot(player.x - food.x, player.y - food.y);
-        if (dist - player.radius - food.radius < 1) {
-          player.radius += 2; // Agrandir le joueur lorsqu'il mange
-          foods.splice(i, 1); // Retirer l'aliment mangé
+        function chooseColor(color) {
+            player.color = color; // Mettre à jour la couleur du joueur
         }
-      }
-    }
-  </script>
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            miniMapCanvas.width = miniMapSize;
+            miniMapCanvas.height = miniMapSize;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        canvas.addEventListener("mousemove", function(event) {
+            let rect = canvas.getBoundingClientRect();
+            mouse.x = event.clientX - rect.left;
+            mouse.y = event.clientY - rect.top;
+        });
+
+        canvas.addEventListener("wheel", function(event) {
+            if (event.deltaY < 0) {
+                zoomLevel *= 1.1;
+            } else {
+                zoomLevel /= 1.1;
+            }
+            zoomLevel = Math.min(Math.max(0.5, zoomLevel), 2);
+        });
+
+        canvas.addEventListener("keydown", function(event) {
+            if (event.code === "Space") {
+                splitPlayer();
+            }
+        });
+
+        function drawGrid() {
+            context.save();
+            context.strokeStyle = "rgba(255, 255, 255, 0.2)"; // Couleur du quadrillage
+            context.lineWidth = 1;
+
+            // Dessiner les lignes verticales
+            for (let x = 0; x < mapSize; x += 100) {
+                context.beginPath();
+                context.moveTo(x, 0);
+                context.lineTo(x, mapSize);
+                context.stroke();
+            }
+
+            // Dessiner les lignes horizontales
+            for (let y = 0; y < mapSize; y += 100) {
+                context.beginPath();
+                context.moveTo(0, y);
+                context.lineTo(mapSize, y);
+                context.stroke();
+            }
+
+            context.restore();
+        }
+
+        function startGame() {
+            player.name = document.getElementById("username").value;
+            document.getElementById("startScreen").style.display = 'none';
+            document.getElementById("miniMap").style.display = 'block'; // Afficher la mini-carte
+            canvas.style.display = "block";
+
+            // Initialiser les points
+            for (let i = 0; i < 100; i++) {
+                points.push(createPoint());
+            }
+            balls.push(player); // Ajoutez la boule principale à la liste des boules
+            updateGame();
+        }
+
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        function createPoint() {
+            let isPurple = Math.random() < 0.2;
+            let isBlack = Math.random() < 0.005;
+            return { 
+                x: Math.random() * mapSize, 
+                y: Math.random() * mapSize, 
+                radius: isBlack ? 15 : isPurple ? 10 : 5,
+                color: isBlack ? "black" : isPurple ? "purple" : getRandomColor(),
+                value: isBlack ? 10 : isPurple ? 4 : 1 
+            };
+        }
+
+        function splitPlayer() {
+            if (player.radius > 30) { // Assurez-vous que la taille est suffisante pour diviser
+                let newRadius = player.radius / 2;
+
+                // Créer deux nouvelles boules
+                let ball1 = { ...player, radius: newRadius, x: player.x - newRadius, y: player.y };
+                let ball2 = { ...player, radius: newRadius, x: player.x + newRadius, y: player.y };
+
+                // Mettre à jour le joueur principal à la moitié de la taille
+                player.radius = newRadius;
+
+                // Ajouter les nouvelles boules à la liste
+                balls.push(ball1, ball2);
+            }
+        }
+
+        function updateGame() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            context.save();
+            context.scale(zoomLevel, zoomLevel);
+            let cameraX = player.x - (canvas.width / 2 / zoomLevel);
+            let cameraY = player.y - (canvas.height / 2 / zoomLevel);
+            context.translate(-cameraX, -cameraY);
+
+            drawGrid(); // Dessiner le quadrillage
+
+            // Dessiner les boules
+            for (let ball of balls) {
+                context.fillStyle = ball.color; 
+                context.beginPath();
+                context.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2); // Dessiner un cercle
+                context.fill();
+
+                // Afficher le nom du joueur
+                context.fillStyle = "white";
+                context.font = `${ball.radius / 2}px Arial`;
+                context.textAlign = "center";
+                context.fillText(ball.name, ball.x, ball.y + (ball.radius / 4));
+            }
+
+            // Logique de mouvement des boules
+            for (let ball of balls) {
+                ball.x += (mouse.x / zoomLevel + cameraX - ball.x) * 0.05;
+                ball.y += (mouse.y / zoomLevel + cameraY - ball.y) * 0.05;
+
+                // Limiter la position de chaque boule à l'intérieur de la carte
+                ball.x = Math.max(ball.radius, Math.min(ball.x, mapSize - ball.radius));
+                ball.y = Math.max(ball.radius, Math.min(ball.y, mapSize - ball.radius));
+            }
+
+            // Dessiner les limites de la carte
+            context.strokeStyle = "white"; 
+            context.lineWidth = 2;
+            context.strokeRect(0, 0, mapSize, mapSize);
+
+            // Gérer les points
+            for (let i = points.length - 1; i >= 0; i--) {
+                let point = points[i];
+                context.fillStyle = point.color;
+                context.beginPath();
+                context.arc(point.x, point.y, point.radius, 0, Math.PI * 2);
+                context.fill();
+
+                // Vérifier si l'une des boules mange un point
+                for (let ball of balls) {
+                    if (Math.hypot(ball.x - point.x, ball.y - point.y) < ball.radius + point.radius) {
+                        // Ne pas grandir au-delà d'un score de 550
+                        if (player.radius < 550) {
+                            points.splice(i, 1);
+                            ball.radius += point.value;
+
+                            // Réapparition des points après un délai
+                            setTimeout(() => {
+                                points.push(createPoint());
+                            }, respawnDelay);
+                        }
+                    }
+                }
+            }
+
+            context.restore();
+            document.getElementById("scoreBoard").innerText = `Score: ${Math.floor(player.radius)}`;
+
+            // Mise à jour de la mini-carte
+            updateMiniMap();
+            requestAnimationFrame(updateGame);
+        }
+
+        function updateMiniMap() {
+            miniMapContext.clearRect(0, 0, miniMapCanvas.width, miniMapCanvas.height);
+            miniMapContext.fillStyle = "rgba(255, 255, 255, 0.2)";
+            miniMapContext.fillRect(0, 0, miniMapSize, miniMapSize);
+
+            // Dessiner le joueur sur la mini-carte
+            for (let ball of balls) {
+                let miniMapX = (ball.x / mapSize) * miniMapSize;
+                let miniMapY = (ball.y / mapSize) * miniMapSize;
+
+                // Vérifier que les coordonnées sont dans les limites de la mini-carte
+                miniMapX = Math.max(0, Math.min(miniMapX, miniMapSize));
+                miniMapY = Math.max(0, Math.min(miniMapY, miniMapSize));
+
+                miniMapContext.fillStyle = "white"; // Point blanc pour le joueur
+                miniMapContext.beginPath();
+                miniMapContext.arc(miniMapX, miniMapY, 3, 0, Math.PI * 2); // Petit point blanc
+                miniMapContext.fill();
+            }
+
+            // Dessiner les points sur la mini-carte
+            for (let point of points) {
+                let miniPointX = (point.x / mapSize) * miniMapSize;
+                let miniPointY = (point.y / mapSize) * miniMapSize;
+
+                miniMapContext.fillStyle = point.color;
+                miniMapContext.beginPath();
+                miniMapContext.arc(miniPointX, miniPointY, (point.radius / mapSize) * miniMapSize, 0, Math.PI * 2);
+                miniMapContext.fill();
+            }
+        }
+    </script>
 </body>
 </html>
